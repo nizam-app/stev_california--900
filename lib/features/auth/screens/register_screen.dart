@@ -1,22 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:renizo/core/constants/color_control/all_color.dart';
 import 'package:renizo/core/models/user.dart';
 import 'package:renizo/core/utils/auth_local_storage.dart';
+import 'package:renizo/features/auth/providers/auth_provider.dart';
 import 'package:renizo/features/onboarding/screens/onboarding_slides_screen.dart';
 import 'package:renizo/features/seller/screens/provider_app_screen.dart';
 
 /// Register – converted from React RegisterScreen.tsx.
-class RegisterScreen extends StatefulWidget {
+class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
   static const String routeName = '/register';
 
   @override
-  State<RegisterScreen> createState() => _RegisterScreenState();
+  ConsumerState<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
+class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   UserRole _role = UserRole.customer;
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -24,8 +26,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _passwordController = TextEditingController();
   final _confirmController = TextEditingController();
   bool _obscurePassword = true;
-  bool _loading = false;
-  String? _error;
 
   @override
   void dispose() {
@@ -38,39 +38,71 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<void> _register() async {
-    _error = null;
+    // Validation
+    if (_nameController.text.trim().isEmpty) {
+      _showError('Please enter your full name');
+      return;
+    }
+    if (_emailController.text.trim().isEmpty) {
+      _showError('Please enter your email');
+      return;
+    }
+    if (_phoneController.text.trim().isEmpty) {
+      _showError('Please enter your phone number');
+      return;
+    }
     if (_passwordController.text != _confirmController.text) {
-      setState(() => _error = 'Passwords do not match');
+      _showError('Passwords do not match');
       return;
     }
     if (_passwordController.text.length < 6) {
-      setState(() => _error = 'Password must be at least 6 characters');
+      _showError('Password must be at least 6 characters');
       return;
     }
-    setState(() => _loading = true);
-    await Future.delayed(const Duration(milliseconds: 800));
-    final id = _role == UserRole.provider ? 'provider_${DateTime.now().millisecondsSinceEpoch}' : 'customer_${DateTime.now().millisecondsSinceEpoch}';
-    await AuthLocalStorage.saveSession(
-      token: 'demo_token',
-      email: _emailController.text.trim(),
-      userId: id,
-      name: _nameController.text.trim(),
-      role: _role == UserRole.provider ? 'provider' : 'customer',
-      phone: _phoneController.text.trim(),
-    );
+
+    // Reset previous state
+    ref.read(signupProvider.notifier).reset();
+
+    // Call signup API
+    await ref.read(signupProvider.notifier).signup(
+          fullName: _nameController.text.trim(),
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
+          phone: _phoneController.text.trim(),
+          role: _role == UserRole.provider ? 'provider' : 'user',
+        );
+
     if (!mounted) return;
-    setState(() => _loading = false);
-    final user = await AuthLocalStorage.getCurrentUser();
-    if (user == null) return;
-    if (user.isProvider) {
-      context.go(ProviderAppScreen.routeName);
-    } else {
-      context.go(OnboardingSlidesScreen.routeName);
+
+    final signupState = ref.read(signupProvider);
+
+    if (signupState.isSuccess) {
+      // Navigate based on role
+      final user = await AuthLocalStorage.getCurrentUser();
+      if (user == null) return;
+      if (user.isProvider) {
+        context.go(ProviderAppScreen.routeName);
+      } else {
+        context.go(OnboardingSlidesScreen.routeName);
+      }
+    } else if (signupState.error != null) {
+      _showError(signupState.error!);
     }
+  }
+
+  void _showError(String error) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(error),
+        backgroundColor: AllColor.destructive,
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final signupState = ref.watch(signupProvider);
+
     return Scaffold(
       backgroundColor: AllColor.primary,
       body: SafeArea(
@@ -127,12 +159,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ],
               ),
-              if (_error != null) ...[
+              if (signupState.error != null) ...[
                 SizedBox(height: 16.h),
                 Container(
                   padding: EdgeInsets.all(12.w),
                   decoration: BoxDecoration(color: AllColor.destructive.withOpacity(0.2), borderRadius: BorderRadius.circular(12.r)),
-                  child: Text(_error!, style: TextStyle(fontSize: 14.sp, color: AllColor.white)),
+                  child: Text(signupState.error!, style: TextStyle(fontSize: 14.sp, color: AllColor.white)),
                 ),
               ],
               SizedBox(height: 16.h),
@@ -149,9 +181,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
               SizedBox(
                 width: double.infinity,
                 child: FilledButton(
-                  onPressed: _loading ? null : _register,
+                  onPressed: signupState.isLoading ? null : _register,
                   style: FilledButton.styleFrom(backgroundColor: AllColor.white, foregroundColor: AllColor.primary, padding: EdgeInsets.symmetric(vertical: 16.h), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r))),
-                  child: _loading ? SizedBox(height: 24.h, width: 24.w, child: CircularProgressIndicator(strokeWidth: 2, color: AllColor.primary)) : Text('Create Account', style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold)),
+                  child: signupState.isLoading ? SizedBox(height: 24.h, width: 24.w, child: CircularProgressIndicator(strokeWidth: 2, color: AllColor.primary)) : Text('Create Account', style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold)),
                 ),
               ),
               SizedBox(height: 32.h),
