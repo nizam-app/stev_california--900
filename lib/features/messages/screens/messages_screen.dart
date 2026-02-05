@@ -2,12 +2,12 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:renizo/core/constants/color_control/all_color.dart';
+import 'package:renizo/core/models/town.dart';
 import 'package:renizo/features/bookings/data/bookings_mock_data.dart';
 import 'package:renizo/features/home/widgets/customer_header.dart';
 import 'package:renizo/features/messages/screens/chat_screen.dart';
 import 'package:renizo/features/notifications/screens/notifications_screen.dart';
 import 'package:renizo/features/town/screens/town_selection_screen.dart';
-import 'package:renizo/core/models/town.dart';
 
 /// Chat list item – mirrors React MessagesScreen Chat interface.
 class ChatListItem {

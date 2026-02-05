@@ -5,11 +5,11 @@ import 'package:renizo/features/auth/screens/home_screen.dart';
 import 'package:renizo/features/auth/screens/login_screen.dart';
 import 'package:renizo/features/auth/screens/register_screen.dart';
 import 'package:renizo/features/auth/screens/splash_screen.dart';
+import 'package:renizo/features/home/screens/customer_home_screen.dart';
 import 'package:renizo/features/nav_bar/screen/bottom_nav_bar.dart';
 import 'package:renizo/features/onboarding/screens/onboarding_slides_screen.dart';
 import 'package:renizo/features/seller/screens/provider_app_screen.dart';
 import 'package:renizo/features/town/screens/town_selection_screen.dart';
-import 'package:renizo/features/home/screens/customer_home_screen.dart';
 
 import 'error_screen.dart';
 
