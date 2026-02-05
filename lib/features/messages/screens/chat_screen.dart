@@ -2,12 +2,13 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:renizo/core/models/town.dart';
 import 'package:renizo/features/bookings/data/bookings_mock_data.dart';
 import 'package:renizo/features/home/widgets/customer_header.dart';
 import 'package:renizo/features/nav_bar/screen/bottom_nav_bar.dart';
-import 'package:renizo/features/notifications/screens/notifications_screen.dart';
 import 'package:renizo/features/town/screens/town_selection_screen.dart';
-import 'package:renizo/core/models/town.dart';
+
+import '../../notifications/screens/notifications_screen.dart';
 
 /// Single chat message – mirrors React ChatScreen Message interface.
 /// Optional [imageUrl] for photo messages; [content] can be caption or empty.
@@ -100,7 +101,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     if (!mounted) return;
     final town = await Navigator.of(context).push<Town>(
       MaterialPageRoute<Town>(
-        builder: (context) => TownSelectionScreenWithProvider(
+        // Old  code ;
+        // builder: (context) => TownSelectionScreenWithProvider(
+        //   onSelectTown: (t) => Navigator.of(context).pop(t),
+        //   canClose: true,
+        // ),
+
+        //Update code.
+        builder: (context) => TownSelectionScreen(
           onSelectTown: (t) => Navigator.of(context).pop(t),
           canClose: true,
         ),
