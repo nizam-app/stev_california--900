@@ -111,10 +111,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       _loading = true;
     });
 
-    await ref.read(loginProvider.notifier).login(
-          email: email,
-          password: password,
-        );
+    await ref
+        .read(loginProvider.notifier)
+        .login(email: email, password: password);
 
     if (!mounted) return;
 
