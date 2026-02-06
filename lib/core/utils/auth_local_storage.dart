@@ -1,5 +1,5 @@
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:renizo/core/models/user.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Persists auth session – aligned with React AuthService session.
 class AuthLocalStorage {
@@ -13,7 +13,8 @@ class AuthLocalStorage {
   static const _keyHasOnboarded = 'hasOnboarded_';
   static const _keySelectedTown = 'selectedTown_';
 
-  static Future<SharedPreferences> get _pref async => SharedPreferences.getInstance();
+  static Future<SharedPreferences> get _pref async =>
+      SharedPreferences.getInstance();
 
   static Future<void> saveSession({
     required String token,
@@ -61,7 +62,8 @@ class AuthLocalStorage {
     final roleStr = p.getString(_keyUserRole);
     final phone = p.getString(_keyUserPhone);
     final avatar = p.getString(_keyUserAvatar);
-    if (id == null || email == null || name == null || roleStr == null) return null;
+    if (id == null || email == null || name == null || roleStr == null)
+      return null;
     final role = roleStr == 'provider' ? UserRole.provider : UserRole.customer;
     return User(
       id: id,
@@ -111,4 +113,8 @@ class AuthLocalStorage {
     final p = await _pref;
     return p.getString(_keySelectedTown + userId);
   }
+
+  static Future getAccessToken() async {}
+
+  static Future<Map<String, String>?> authHeaders() async {}
 }

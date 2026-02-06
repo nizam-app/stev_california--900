@@ -16,12 +16,10 @@ class SellerBottomNav extends ConsumerWidget {
 
   static const List<Widget> _pages = [
     SellerHomeScreen(),
-    SellerBookingsScreen(),
+    SellerBookingsScreen(bookings: []),
     SellerMessagesScreen(),
     SellerEarningsScreen(),
     SellerProfileScreen(),
-
-    
   ];
 
   @override
@@ -38,10 +36,22 @@ class SellerBottomNav extends ConsumerWidget {
         type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: 'Bookings'),
-          BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline), label: 'Messages'),
-          BottomNavigationBarItem(icon: Icon(Icons.payments_outlined), label: 'Earnings'),
-          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Profile'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.calendar_today),
+            label: 'Bookings',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.chat_bubble_outline),
+            label: 'Messages',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.payments_outlined),
+            label: 'Earnings',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outline),
+            label: 'Profile',
+          ),
         ],
       ),
     );
