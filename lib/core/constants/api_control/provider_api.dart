@@ -1,3 +1,8 @@
+
+import 'package:renizo/core/constants/api_control/global_api.dart';
+
+
+
 // class ProviderApi {
 //   static final String _base_api = "$api/providers";
 //   static String get profileScreen => _base_api + "/profile_screen";
@@ -18,3 +23,4 @@ class ProviderApi {
   static String get createTown => "$api/towns";
   static String updateTown(String townId) => "$api/towns/$townId";
 }
+
