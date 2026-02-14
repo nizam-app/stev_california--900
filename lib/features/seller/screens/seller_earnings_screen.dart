@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:renizo/core/widgets/app_logo_button.dart';
 import 'package:renizo/features/seller/models/seller_job_item.dart';
+import 'package:renizo/features/seller/screens/provider_payout_screen.dart';
 
 // TSX SellerEarningsScreen.tsx colors
 class _EarningsColors {
@@ -124,7 +125,7 @@ class _SellerEarningsScreenState extends State<SellerEarningsScreen> {
                 SizedBox(height: 16.h),
                 _TransactionsCard(transactions: _transactions),
                 SizedBox(height: 16.h),
-                // _WithdrawalButton(),
+                _PayoutButton(),
               ],
             ),
           ),
@@ -147,6 +148,36 @@ class _SellerEarningsScreenState extends State<SellerEarningsScreen> {
         ],
       ),
       body: content,
+    );
+  }
+}
+
+class _PayoutButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              builder: (_) => const ProviderPayoutScreen(),
+            ),
+          );
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.white,
+          foregroundColor: _EarningsColors.blueBg,
+          padding: EdgeInsets.symmetric(vertical: 14.h),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14.r),
+          ),
+        ),
+        child: Text(
+          'Set Provider Payout',
+          style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),
+        ),
+      ),
     );
   }
 }

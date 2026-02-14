@@ -1,6 +1,7 @@
+import 'global_api.dart' as global;
+
 class ProviderApi {
-  //static const String api = "http://103.208.183.248:5000/api/v1";
-  static const String api = "http://103.208.181.235:5000/api/v1";
+  static String get api => global.api;
   static String get profileScreen => "$api/providers/me/profile";
   static String get dashboard => "$api/providers/me/dashboard";
   static String get myBookings => "$api/bookings/provider/me";
@@ -23,6 +24,7 @@ class ProviderApi {
   static String get acceptingJobs => "$api/providers/me/accepting-jobs";
   static String publicProfile(String providerUserId) =>
       "$api/providers/public/$providerUserId";
+  static String get providerPayout => "$api/providers/me/payout";
 
   /// POST body: townId, serviceId, subsectionId (List<String>), addonIds (List<String>), scheduledAtISO.
   static String get providerSearch => "$api/bookings/providers/search";
