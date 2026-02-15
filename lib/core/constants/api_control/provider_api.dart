@@ -26,6 +26,20 @@ class ProviderApi {
       "$api/providers/public/$providerUserId";
   static String get providerPayout => "$api/providers/me/payout";
 
+  /// GET – combined earnings (summary + performance + recent transactions)
+  static Uri earningsUri({int? transactionsLimit, int page = 1, int limit = 20}) {
+    final params = <String, String>{
+      if (transactionsLimit != null) 'transactionsLimit': transactionsLimit.toString(),
+      'page': page.toString(),
+      'limit': limit.toString(),
+    };
+    return Uri.parse('$api/providers/me/earnings').replace(queryParameters: params.isEmpty ? null : params);
+  }
+  static String get earningsSummary => "$api/providers/me/earnings/summary";
+  static String get earningsPerformance => "$api/providers/me/earnings/performance";
+  static Uri earningsTransactionsUri({int page = 1, int limit = 20}) =>
+      Uri.parse('$api/providers/me/earnings/transactions').replace(queryParameters: {'page': page.toString(), 'limit': limit.toString()});
+
   /// POST body: townId, serviceId, subsectionId (List<String>), addonIds (List<String>), scheduledAtISO.
   static String get providerSearch => "$api/bookings/providers/search";
 

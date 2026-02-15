@@ -52,6 +52,7 @@ class PaymentScreen extends StatefulWidget {
 
 class _PaymentScreenState extends State<PaymentScreen> {
   bool _processing = false;
+  String? _errorMessage;
 
   static const Color _bgBlue = Color(0xFF2384F4);
   static const Color _cardBlueStart = Color(0xFF4F8EF7);
@@ -171,7 +172,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 ),
               ),
             ),
-            
+            if (_errorMessage != null) _buildErrorBanner(),
           ],
         ),
       ),
@@ -352,16 +353,68 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
+  Widget _buildErrorBanner() {
+    final msg = _errorMessage!;
+    return Container(
+      margin: EdgeInsets.fromLTRB(16.w, 0, 16.w, 16.h),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+      decoration: BoxDecoration(
+        color: const Color(0xFF374151),
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(14.r)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Row(
+          children: [
+            Icon(Icons.error_outline, color: Colors.white70, size: 22.sp),
+            SizedBox(width: 10.w),
+            Expanded(
+              child: Text(
+                msg,
+                style: TextStyle(fontSize: 13.sp, color: Colors.white),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() => _errorMessage = null);
+                _onPay();
+              },
+              child: Text('Try again', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600, color: Colors.white)),
+            ),
+            IconButton(
+              icon: Icon(Icons.close, size: 20.sp, color: Colors.white70),
+              onPressed: () => setState(() => _errorMessage = null),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Future<void> _onPay() async {
-    setState(() => _processing = true);
+    setState(() {
+      _processing = true;
+      _errorMessage = null;
+    });
     try {
       await StripeService.ensureInitialized();
-      final clientSecret =
+      final result =
           await createPaymentIntent(bookingId: widget.bookingId);
+
+      if (result.alreadySucceeded) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Payment successful')),
+        );
+        Navigator.of(context).pop();
+        return;
+      }
 
       await Stripe.instance.initPaymentSheet(
         paymentSheetParameters: SetupPaymentSheetParameters(
-          paymentIntentClientSecret: clientSecret,
+          paymentIntentClientSecret: result.clientSecret,
           merchantDisplayName: 'Renizo',
         ),
       );
@@ -374,14 +427,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
       Navigator.of(context).pop();
     } on StripeException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.error.message ?? 'Payment failed')),
-      );
+      final message = e.error.message ?? 'Payment failed';
+      setState(() => _errorMessage = message);
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
-      );
+      final message = e.toString().replaceFirst('Exception: ', '');
+      setState(() => _errorMessage = message);
     } finally {
       if (mounted) setState(() => _processing = false);
     }
